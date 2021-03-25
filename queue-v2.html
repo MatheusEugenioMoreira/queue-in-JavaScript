@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+ <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KTHB9TD');</script>
+<!-- End Google Tag Manager -->
+  <title>Queue</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Virgilio Borges de Oliveira">
+  <meta name="keywords" content="fila, fifo, queue, estruturas de dados, estrutura de dados, algoritmos, enqueue, dequeue">
+  <meta name="description" content="Simulador on-line da estrutura de dados do tipo Fila (FIFO).">
+  <meta property="og:site_name" content="Professor Virgilio Borges">
+  <meta property="og:title" content="Simulador: Fila (FIFO)">
+  <meta property="og:description" content="Simulador on-line da estrutura de dados do tipo Fila (FIFO).">
+  <meta property="og:image" itemprop="image" content="http://virgilioborges.com.br/images/vbo.jpg">
+  <meta property="og:type" content="website">  
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!--  -->
+  <link rel="icon" href="https://cotemig.com.br/assets/img/favicon.ico">
+  
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script type="text/javascript">
+    var inicio = 0;
+	var fim = 0;
+	var tamanho = 0;
+
+	$(document).ready(function() {
+		drawQueue(8);
+
+		$('#btcriar').click(function() {
+			let tam = $('#txttamanho').val().trim();
+			if(!isNaN(tam) && tam != '' && parseInt(tam) > 1 && parseInt(tam) < 21) {
+				drawQueue(parseInt(tam));
+				$('#btlimpar').click();
+			}
+			else
+				log("Tamanho inválido!");
+		});
+
+		$('#btenfileirar').click(function() {
+			let val = $('#txtvalor').val().trim();
+			if(!isNaN(val) && val != '' && parseInt(val) > -100 && parseInt(val) < 100) {
+				if(!enfileirar(parseInt(val))) 
+					log("Erro: fila cheia!");
+			}
+			else
+				log("Valor inválido!");
+		});
+
+		$('#btaleatorio').click(function() {
+			$('#txtvalor').val(Math.floor(Math.random() * 100));
+			$('#btenfileirar').click();
+		});
+
+		$('#btdesenfileirar').click(function() {
+			if((val = desenfileirar()) !== false)
+				log(val);
+			else
+				log("Erro: fila vazia!");
+		});
+
+		$('#btlimpar').click(function() {
+			$('#log').empty();
+		});
+
+		$('#txtvalor').focus(function() {
+			$('#txtvalor').select();
+		});
+	});	
+
+	function enfileirar(val) {
+		if((fim + 1) % tamanho == inicio) {
+			return false;
+		}
+		else {
+			$('#v' + fim).text(parseInt(val)).removeClass('invalido');
+			$('#s' + fim).html('');
+			fim = (fim + 1) % tamanho;
+			if(fim == inicio)
+				$('#s' + fim).html('<span class="inicio">I</span>/<span class="fim">F</span>');
+			else {
+				$('#s' + inicio).html('<span class="inicio">I</span>');
+				$('#s' + fim).html('<span class="fim">F</span>');
+			}
+			return true;
+		}
+	}
+
+	function desenfileirar() {
+		if(inicio != fim) {
+			const x = parseInt($('#v' + inicio).addClass('invalido').text());
+			$('#s' + inicio).html('');
+			inicio = (inicio + 1) % tamanho;
+			if(fim == inicio)
+				$('#s' + inicio).html('<span class="inicio">I</span>/<span class="fim">F</span>');
+			else {
+				$('#s' + inicio).html('<span class="inicio">I</span>');
+				$('#s' + fim).html('<span class="fim">F</span>');
+			}
+			return(x);
+		}
+		else {
+			return false;
+		}
+	}
+
+	function drawQueue(size) {
+		inicio = fim = 0;
+		tamanho = size;
+		$("#canvas").empty().html('<canvas id="mycanvas" width="300" height="300"></canvas>');
+		for(i = 0; i < tamanho; i++) {
+			$("#canvas")
+				.append($('<div id="s' + i + '" class="seta">')
+					.html('<span style="vertical-align:middle"></span>')
+				)
+				.append($('<div id="i' + i + '" class="indice">')
+					.html('<span style="vertical-align:middle">' + i + '</span>')
+				)
+				.append($('<div id="v' + i + '" class="valor invalido">')
+					.html('<span style="vertical-align:middle">' + (Math.floor(Math.random() * 100)) + '</span>')
+				);
+		}
+		$('#s' + inicio).html('<span class="inicio">I</span>/<span class="fim">F</span>');
+	    const fatia = 360 / tamanho;
+		const canvas = document.getElementById("mycanvas");
+	    const ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+	    ctx.beginPath();
+		ctx.ellipse(150, 150, 125, 125, 0, 0, 2 * Math.PI);
+		for(i = 0; i < tamanho; i++) {
+			let x = 150 + 125 * Math.sin(i * fatia * Math.PI / 180);
+			let y = 150 + 125 * Math.cos(i * fatia * Math.PI / 180);
+			ctx.moveTo(150, 150);
+			ctx.lineTo(x, y);
+			x = 130 + 90 * Math.sin((i * fatia + fatia / 2) * Math.PI / 180);
+			y = 130 + 90 * Math.cos((i * fatia + fatia / 2) * Math.PI / 180);
+			$('#v' + (tamanho + 3 - i) % tamanho).css('top', y).css('left', x);
+			x = 130 + 137 * Math.sin((i * fatia + fatia / 2) * Math.PI / 180);
+			y = 130 + 137 * Math.cos((i * fatia + fatia / 2) * Math.PI / 180);
+			$('#i' + (tamanho + 3 - i) % tamanho).css('top', y).css('left', x);
+			x = 130 + 158 * Math.sin((i * fatia + fatia / 2) * Math.PI / 180);
+			y = 130 + 158 * Math.cos((i * fatia + fatia / 2) * Math.PI / 180);
+			$('#s' + (tamanho + 3 - i) % tamanho).css('top', y).css('left', x);
+		}
+		ctx.stroke();	
+	}
+
+	function log(msg) {
+		$('#log').html(msg + "<br>" + $('#log').html());
+	}
+  </script>
+ </head>
+
+ <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KTHB9TD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+ <div class="container-fluid">
+ <h3>Simulador: Estrutura Fila (FIFO)</h3>
+ <br>
+ <div class="input-group input-group-sm">
+	<div class="input-group-prepend">
+		<label class="input-group-text" for="txttamanho">Tamanho:&nbsp;</label>
+	</div>
+	<input class="campo" type="number" id="txttamanho" value="8" min="2" max="10">
+	<input type="button" class="btn btn-outline-primary btn-sm" id="btcriar" value="Criar">
+ </div>
+ <br>
+ <div class="input-group input-group-sm">
+	<div class="input-group-prepend">
+		<label class="input-group-text" for="txtvalor">Valor:&nbsp;</label>
+	</div>
+	<input type="number" class="campo" id="txtvalor" min="-99" max="99">
+	<input type="button" class="btn btn-outline-primary btn-sm" id="btenfileirar" value="Enfileirar">
+	<input type="button" class="btn btn-outline-primary btn-sm" id="btaleatorio" value="Enfileirar Aleatório">
+ </div>
+ <br>
+ <div class="input-group">
+	<input class="btn btn-outline-primary btn-sm" type="button" id="btdesenfileirar" value="Desenfileirar">
+ </div>
+ <br>
+ <div id="canvas">
+ </div>
+ <br>
+ <h4>Saída:</h4>
+ <div id="log">
+ </div>
+ <input class="btn btn-outline-primary btn-sm" type="button" id="btlimpar" value="Limpar">
+ </div>
+ </body>
+ <style>
+	#canvas {
+		position: relative;
+	}
+	.valor {
+	  position: absolute;
+	            padding: 4px 6px;
+	            width: 40px;
+	            height: 40px;
+	            text-align: center;
+	  overflow: hidden;
+	            font-size: 130%;
+	}
+	.indice {
+	  position: absolute;
+	            padding: 4px 6px;
+	            width: 40px;
+	            height: 40px;
+	            text-align: center;
+	  overflow: hidden;	
+		font-weight: bold;
+	}
+	.seta {
+	  position: absolute;
+	            padding: 4px 6px;
+	            width: 40px;
+	            height: 40px;
+	            text-align: center;
+	  overflow: hidden;	
+		font-weight: bold;
+	            font-size: 120%;
+	}
+	.campo {
+	  width: 4em;
+	            text-align: center;
+	}
+	.inicio {
+	            color: green;
+	}
+	.fim {
+	            color: red;
+	}
+	.invalido {
+		color: #ffcece;
+	}
+	#log {
+	  height: 10em;
+	            width: 60%;
+	            overflow: scroll;
+	            border: 1px solid black;
+	            padding: 4px 6px;
+	}
+	</style>
+</html>
